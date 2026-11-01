@@ -2083,6 +2083,19 @@ struct BreakCoordinatorPostponeTests {
         return (coordinator, scheduler, detector, locker, schedule)
     }
 
+    /// Polls `condition` every 10 ms until it holds or `timeout` passes. A fixed sleep before
+    /// a positive check fails whenever a loaded runner uses up its margin; this waits only as
+    /// long as it has to, and the timeout leaves room for a slow machine.
+    private func waitUntil(timeout: Duration = .seconds(3), _ condition: () -> Bool) async -> Bool {
+        let clock = ContinuousClock()
+        let deadline = clock.now.advanced(by: timeout)
+        while !condition() {
+            if clock.now >= deadline { return false }
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+        return true
+    }
+
     @Test
     func postponeIsNotASkip() async {
         var stats = BreakStatistics()
@@ -2134,8 +2147,8 @@ struct BreakCoordinatorPostponeTests {
         try? await Task.sleep(for: .milliseconds(100))
         #expect(!locker.showOverlayCalled)
 
-        try? await Task.sleep(for: .milliseconds(400))
-        #expect(locker.showOverlayCalled)
+        let breakReturned = await waitUntil { locker.showOverlayCalled }
+        #expect(breakReturned)
         #expect(locker.lastCanPostpone == false)
         #expect(locker.lastDuration == schedule.breakDuration)
 
@@ -2189,8 +2202,8 @@ struct BreakCoordinatorPostponeTests {
         #expect(!locker.showOverlayCalled)
 
         detector.contextToReturn = .clear
-        try? await Task.sleep(for: .milliseconds(500))
-        #expect(locker.showOverlayCalled)
+        let breakReturned = await waitUntil { locker.showOverlayCalled }
+        #expect(breakReturned)
 
         coordinator.stop()
     }
@@ -2212,8 +2225,8 @@ struct BreakCoordinatorPostponeTests {
         try? await Task.sleep(for: .milliseconds(100))
         #expect(!locker.showOverlayCalled)
 
-        try? await Task.sleep(for: .milliseconds(400))
-        #expect(locker.showOverlayCalled)
+        let breakReturned = await waitUntil { locker.showOverlayCalled }
+        #expect(breakReturned)
 
         coordinator.stop()
     }
@@ -2225,8 +2238,8 @@ struct BreakCoordinatorPostponeTests {
 
         coordinator.postponeActiveBreak()
         locker.showOverlayCalled = false
-        try? await Task.sleep(for: .milliseconds(500))
-        #expect(locker.showOverlayCalled)
+        let breakReturned = await waitUntil { locker.showOverlayCalled }
+        #expect(breakReturned)
 
         let state = coordinator.captureEnforcementState()
         #expect(state.dailyBreakCounts[schedule.id] == 1)
@@ -2278,8 +2291,8 @@ struct BreakCoordinatorPostponeTests {
 
         coordinator.postponeActiveBreak()
         locker.showOverlayCalled = false
-        try? await Task.sleep(for: .milliseconds(500))
-        #expect(locker.showOverlayCalled)
+        let breakReturned = await waitUntil { locker.showOverlayCalled }
+        #expect(breakReturned)
         let deferredBefore = lastStats?.breaksDeferred
 
         coordinator.postponeActiveBreak()
@@ -2312,8 +2325,8 @@ struct BreakCoordinatorPostponeTests {
         coordinator.handleScreenUnlock()
         locker.showOverlayCalled = false
 
-        try? await Task.sleep(for: .milliseconds(600))
-        #expect(locker.showOverlayCalled)
+        let breakReturned = await waitUntil { locker.showOverlayCalled }
+        #expect(breakReturned)
         #expect(locker.lastCanPostpone == false)
         #expect(lastStats?.breaksSkipped == 0)
 
@@ -2338,8 +2351,8 @@ struct BreakCoordinatorPostponeTests {
         coordinator.handleSystemWake()
         locker.showOverlayCalled = false
 
-        try? await Task.sleep(for: .milliseconds(600))
-        #expect(locker.showOverlayCalled)
+        let breakReturned = await waitUntil { locker.showOverlayCalled }
+        #expect(breakReturned)
         #expect(locker.lastCanPostpone == false)
         #expect(lastStats?.breaksSkipped == 0)
 
@@ -2356,8 +2369,8 @@ struct BreakCoordinatorPostponeTests {
         coordinator.pause(for: 0.1)
         locker.showOverlayCalled = false
 
-        try? await Task.sleep(for: .milliseconds(700))
-        #expect(locker.showOverlayCalled)
+        let breakReturned = await waitUntil { locker.showOverlayCalled }
+        #expect(breakReturned)
         #expect(locker.lastCanPostpone == false)
 
         coordinator.stop()
@@ -2410,8 +2423,8 @@ struct BreakCoordinatorPostponeTests {
         coordinator.postponeActiveBreak()
         let (rebuilt, newLocker) = rebuild(from: coordinator, with: [schedule])
 
-        try? await Task.sleep(for: .milliseconds(600))
-        #expect(newLocker.showOverlayCalled)
+        let breakReturned = await waitUntil { newLocker.showOverlayCalled }
+        #expect(breakReturned)
         #expect(newLocker.lastCanPostpone == false)
 
         rebuilt.stop()
@@ -2429,8 +2442,8 @@ struct BreakCoordinatorPostponeTests {
         #expect(!idleLocker.showOverlayCalled)
 
         let (rebuilt, newLocker) = rebuild(from: withoutSchedule, with: [schedule])
-        try? await Task.sleep(for: .milliseconds(600))
-        #expect(newLocker.showOverlayCalled)
+        let breakReturned = await waitUntil { newLocker.showOverlayCalled }
+        #expect(breakReturned)
         #expect(newLocker.lastCanPostpone == false)
 
         rebuilt.stop()
