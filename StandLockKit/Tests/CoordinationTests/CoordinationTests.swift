@@ -2083,9 +2083,7 @@ struct BreakCoordinatorPostponeTests {
         return (coordinator, scheduler, detector, locker, schedule)
     }
 
-    /// Polls `condition` every 10 ms until it holds or `timeout` passes. A fixed sleep before
-    /// a positive check fails whenever a loaded runner uses up its margin; this waits only as
-    /// long as it has to, and the timeout leaves room for a slow machine.
+    /// Use instead of a fixed sleep before a positive check, which flakes on a loaded runner.
     private func waitUntil(timeout: Duration = .seconds(3), _ condition: () -> Bool) async -> Bool {
         let clock = ContinuousClock()
         let deadline = clock.now.advanced(by: timeout)
