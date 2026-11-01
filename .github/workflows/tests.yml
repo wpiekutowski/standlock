@@ -44,3 +44,10 @@ jobs:
             -destination 'generic/platform=macOS' \
             -derivedDataPath "$RUNNER_TEMP/DerivedData" \
             CODE_SIGNING_ALLOWED=NO
+
+      - name: Package the app like a release
+        env:
+          VERSION: ci
+        run: |
+          scripts/create-release-dmg.sh "$RUNNER_TEMP/DerivedData/Build/Products/Debug/StandLock.app"
+          hdiutil verify StandLock-ci.dmg
