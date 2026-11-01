@@ -151,10 +151,12 @@ private struct ScheduleRow: View {
                     HStack(spacing: 4) {
                         Image(systemName: "exclamationmark.triangle.fill")
                         Text("Strict inactive, running as Firm")
-                        Button("Grant") {
-                            checker.requestStrictPermission()
+                        if checker.capabilities.supportsInputBlocking {
+                            Button("Grant") {
+                                checker.requestStrictPermission()
+                            }
+                            .buttonStyle(.link)
                         }
-                        .buttonStyle(.link)
                     }
                     .font(.caption)
                     .foregroundStyle(.orange)

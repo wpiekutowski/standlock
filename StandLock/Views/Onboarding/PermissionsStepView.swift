@@ -17,23 +17,25 @@ struct PermissionsStepView: View {
                 .padding(.horizontal)
 
             VStack(spacing: 12) {
-                permissionCard(
-                    icon: "keyboard",
-                    name: "Input Monitoring",
-                    description: "Enables the escape key combo that ends a Strict break.",
-                    status: checker.inputMonitoringStatus,
-                    action: { checker.requestInputMonitoring() },
-                    restartAction: { checker.relaunchApp() }
-                )
+                if checker.capabilities.supportsInputBlocking {
+                    permissionCard(
+                        icon: "keyboard",
+                        name: "Input Monitoring",
+                        description: "Enables the escape key combo that ends a Strict break.",
+                        status: checker.inputMonitoringStatus,
+                        action: { checker.requestInputMonitoring() },
+                        restartAction: { checker.relaunchApp() }
+                    )
 
-                permissionCard(
-                    icon: "figure.stand",
-                    name: "Accessibility",
-                    description: "Enables Strict mode to fully block input during breaks.",
-                    status: checker.accessibilityStatus,
-                    action: { checker.requestAccessibility() },
-                    restartAction: { checker.relaunchApp() }
-                )
+                    permissionCard(
+                        icon: "figure.stand",
+                        name: "Accessibility",
+                        description: "Enables Strict mode to fully block input during breaks.",
+                        status: checker.accessibilityStatus,
+                        action: { checker.requestAccessibility() },
+                        restartAction: { checker.relaunchApp() }
+                    )
+                }
 
                 permissionCard(
                     icon: "calendar",

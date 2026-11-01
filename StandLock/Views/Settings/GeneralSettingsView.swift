@@ -140,12 +140,14 @@ struct GeneralSettingsView: View {
                     value: $coordinator.preferences.firmDailySkipLimit
                 )
 
-                Label {
-                    Text("Strict has no skip limit; only the emergency escape combo ends a break early.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } icon: {
-                    Image(systemName: "lock.shield")
+                if coordinator.permissionChecker.capabilities.supportsInputBlocking {
+                    Label {
+                        Text("Strict has no skip limit; only the emergency escape combo ends a break early.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } icon: {
+                        Image(systemName: "lock.shield")
+                    }
                 }
             }
         }

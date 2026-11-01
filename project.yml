@@ -7,6 +7,15 @@ options:
   createIntermediateGroups: true
   defaultConfig: Debug
 
+# The two Sandboxed configurations build the Sandboxed Build: same sources, SANDBOXED
+# compilation condition, its own entitlements, bundle id and update feed. Debug and Release
+# stay the Standard Build. Select with `xcodebuild -configuration Sandboxed`.
+configs:
+  Debug: debug
+  Release: release
+  Sandboxed Debug: debug
+  Sandboxed: release
+
 settings:
   base:
     SWIFT_VERSION: "6.0"
@@ -48,12 +57,30 @@ targets:
         SWIFT_STRICT_CONCURRENCY: complete
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Info.plist reads these two. The Standard Build keeps the default feed and leaves
+        # the Sparkle installer launcher service off; the Sandboxed configurations override.
+        SPARKLE_FEED_URL: https://github.com/yagizdo/standlock/releases/latest/download/appcast.xml
+        SPARKLE_ENABLE_INSTALLER_LAUNCHER: "NO"
       configs:
         Debug:
           APP_DISPLAY_NAME: StandLock Debug
           PRODUCT_BUNDLE_IDENTIFIER: com.yagizdokumaci.standlock.debug
         Release:
           APP_DISPLAY_NAME: StandLock
+        Sandboxed Debug:
+          APP_DISPLAY_NAME: StandLock Sandboxed Debug
+          PRODUCT_BUNDLE_IDENTIFIER: com.yagizdokumaci.standlock.sandboxed.debug
+          CODE_SIGN_ENTITLEMENTS: StandLock/StandLockSandboxed.entitlements
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) DEBUG SANDBOXED"
+          SPARKLE_FEED_URL: https://github.com/yagizdo/standlock/releases/latest/download/appcast-sandboxed.xml
+          SPARKLE_ENABLE_INSTALLER_LAUNCHER: "YES"
+        Sandboxed:
+          APP_DISPLAY_NAME: StandLock Sandboxed
+          PRODUCT_BUNDLE_IDENTIFIER: com.yagizdokumaci.standlock.sandboxed
+          CODE_SIGN_ENTITLEMENTS: StandLock/StandLockSandboxed.entitlements
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) SANDBOXED"
+          SPARKLE_FEED_URL: https://github.com/yagizdo/standlock/releases/latest/download/appcast-sandboxed.xml
+          SPARKLE_ENABLE_INSTALLER_LAUNCHER: "YES"
     dependencies:
       - package: StandLockKit
         product: StandLockCore
