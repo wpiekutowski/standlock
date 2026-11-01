@@ -1,10 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# Use the sign_update that SwiftPM fetched in the "Resolve SPM dependencies" step.
-# SwiftPM checks that archive against the checksum in Sparkle's Package.swift at the
-# revision pinned in Package.resolved, so the binary that gets the private key below
-# is the one the pin vouches for. A separate unverified download would not be.
 SIGN_UPDATE=$(find "${RUNNER_TEMP:?}/DerivedData/SourcePackages/artifacts" \
   -path '*/Sparkle/bin/sign_update' -type f 2>/dev/null | head -1 || true)
 if [ -z "$SIGN_UPDATE" ]; then
