@@ -44,18 +44,22 @@ final class PermissionChecker: ObservableObject {
     @Published var inputMonitoringProbeSucceeded = false
     @Published var calendarNeedsRestart = false
 
+    let capabilities: AppCapabilities
     private let eventStore = EKEventStore()
     /// The alerts below are AppKit, so they cannot lean on the environment locale the way a
     /// `Text(LocalizedStringKey:)` does -- every string they show is resolved through here.
     private let languageStore: LanguageStore
 
-    init(languageStore: LanguageStore) {
+    init(languageStore: LanguageStore, capabilities: AppCapabilities = .current) {
         self.languageStore = languageStore
-        inputMonitoringGranted = CGPreflightListenEventAccess()
-        accessibilityGranted = AXIsProcessTrusted()
+        self.capabilities = capabilities
+        // Both permissions exist only for Input Blocking. Without it nothing asks the system
+        // about them, so they stay false and never raise a restart prompt.
+        let blocking = capabilities.supportsInputBlocking
+        inputMonitoringGranted = blocking && CGPreflightListenEventAccess()
+        accessibilityGranted = blocking && AXIsProcessTrusted()
         calendarStatus = EKEventStore.authorizationStatus(for: .event)
-        let probe = probeInputMonitoringAccess()
-        if probe {
+        if blocking && probeInputMonitoringAccess() {
             inputMonitoringGranted = true
             inputMonitoringProbeSucceeded = true
             lastProbeTime = Date()
@@ -121,6 +125,7 @@ final class PermissionChecker: ObservableObject {
     }
 
     private func updateInputMonitoringProbe() {
+        guard capabilities.supportsInputBlocking else { return }
         guard Date().timeIntervalSince(lastProbeTime) >= probeInterval else { return }
         lastProbeTime = Date()
         let result = probeInputMonitoringAccess()
@@ -131,9 +136,11 @@ final class PermissionChecker: ObservableObject {
     }
 
     func refreshStatus() {
-        let preflight = CGPreflightListenEventAccess()
-        inputMonitoringGranted = preflight || inputMonitoringProbeSucceeded
-        accessibilityGranted = AXIsProcessTrusted()
+        if capabilities.supportsInputBlocking {
+            let preflight = CGPreflightListenEventAccess()
+            inputMonitoringGranted = preflight || inputMonitoringProbeSucceeded
+            accessibilityGranted = AXIsProcessTrusted()
+        }
         calendarStatus = EKEventStore.authorizationStatus(for: .event)
     }
 
@@ -187,22 +194,28 @@ final class PermissionChecker: ObservableObject {
     private(set) static var isRelaunching = false
 
     func relaunchApp() {
-        let task = Process()
-        task.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        task.arguments = ["-n", Bundle.main.bundlePath]
-        do {
-            try task.run()
-            Self.isRelaunching = true
-            NSApp.terminate(nil)
-        } catch {
-            let alert = NSAlert()
-            alert.messageText = languageStore.string("Restart Failed")
-            alert.informativeText = languageStore.string(
-                "Could not relaunch StandLock. Please reopen the app manually."
-            )
-            alert.alertStyle = .warning
-            alert.runModal()
+        let appURL = URL(fileURLWithPath: Bundle.main.bundlePath)
+        Task { @MainActor in
+            let configuration = NSWorkspace.OpenConfiguration()
+            configuration.createsNewApplicationInstance = true
+            do {
+                _ = try await NSWorkspace.shared.openApplication(at: appURL, configuration: configuration)
+                Self.isRelaunching = true
+                NSApp.terminate(nil)
+            } catch {
+                showRelaunchFailedAlert()
+            }
         }
+    }
+
+    private func showRelaunchFailedAlert() {
+        let alert = NSAlert()
+        alert.messageText = languageStore.string("Restart Failed")
+        alert.informativeText = languageStore.string(
+            "Could not relaunch StandLock. Please reopen the app manually."
+        )
+        alert.alertStyle = .warning
+        alert.runModal()
     }
 
     private func showRestartAlertIfNeeded(for permissionName: String) {
@@ -228,12 +241,14 @@ final class PermissionChecker: ObservableObject {
 
     // MARK: - Feature Gates
 
-    var strictModeAvailable: Bool { accessibilityGranted && inputMonitoringGranted }
+    var strictModeAvailable: Bool {
+        capabilities.supportsInputBlocking && accessibilityGranted && inputMonitoringGranted
+    }
 
     /// Why Strict cannot run right now, or nil when it can. Shared by the level picker and the
     /// schedule list so the two never drift into describing the same block differently.
     var strictModeBlockedReason: String? {
-        if strictModeAvailable { return nil }
+        if strictModeAvailable || !capabilities.supportsInputBlocking { return nil }
         if !accessibilityGranted && !inputMonitoringGranted {
             return "Strict mode requires Accessibility and Input Monitoring permissions."
         }

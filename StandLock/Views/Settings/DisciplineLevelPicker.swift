@@ -8,7 +8,7 @@ struct DisciplineLevelPicker: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            ForEach(DisciplineLevel.allCases, id: \.self) { level in
+            ForEach(checker.capabilities.availableDisciplineLevels, id: \.self) { level in
                 LevelCard(
                     level: level,
                     isSelected: selection == level,

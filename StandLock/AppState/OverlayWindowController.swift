@@ -12,6 +12,7 @@ final class OverlayWindowController: LockPresenting {
     private let mediaController = MediaController()
     private let languageStore: LanguageStore
     private let themeStore: ThemeStore
+    private let capabilities: AppCapabilities
     private(set) var isShowing: Bool = false
 
     private var currentLevel: DisciplineLevel?
@@ -31,9 +32,10 @@ final class OverlayWindowController: LockPresenting {
     var onEscape: (() -> Void)?
     var onPostpone: (() -> Void)?
 
-    nonisolated init(languageStore: LanguageStore, themeStore: ThemeStore) {
+    nonisolated init(languageStore: LanguageStore, themeStore: ThemeStore, capabilities: AppCapabilities) {
         self.languageStore = languageStore
         self.themeStore = themeStore
+        self.capabilities = capabilities
     }
 
     func showOverlay(
@@ -91,7 +93,7 @@ final class OverlayWindowController: LockPresenting {
         NSApp.setActivationPolicy(.regular)
         NSApp.activate(ignoringOtherApps: true)
 
-        if level == .strict {
+        if level == .strict && capabilities.supportsInputBlocking {
             startEventTap(preferences: preferences)
         }
 

@@ -74,8 +74,10 @@ final class AppCoordinator: ObservableObject {
     private var lastCalendarAuthorized = false
 
     init() {
-        permissionChecker = PermissionChecker(languageStore: languageStore)
-        overlayController = OverlayWindowController(languageStore: languageStore, themeStore: themeStore)
+        permissionChecker = PermissionChecker(languageStore: languageStore, capabilities: .current)
+        overlayController = OverlayWindowController(
+            languageStore: languageStore, themeStore: themeStore, capabilities: .current
+        )
         // Before the first window appears, so a stored Light or Dark choice is already
         // in force rather than repainting a frame after launch.
         themeStore.applyAppearance()
@@ -277,10 +279,13 @@ final class AppCoordinator: ObservableObject {
     private func enforceableSchedules() -> [Schedule] {
         let strictAvailable = permissionChecker.strictModeAvailable
         return schedules.filter(\.isEnabled).map { schedule in
-            guard !strictAvailable, schedule.disciplineLevel == .strict else { return schedule }
-            var downgraded = schedule
-            downgraded.disciplineLevel = .firm
-            return downgraded
+            var resolved = schedule
+            resolved.disciplineLevel = resolveDisciplineLevel(
+                schedule.disciplineLevel, capabilities: permissionChecker.capabilities
+            )
+            guard !strictAvailable, resolved.disciplineLevel == .strict else { return resolved }
+            resolved.disciplineLevel = .firm
+            return resolved
         }
     }
 

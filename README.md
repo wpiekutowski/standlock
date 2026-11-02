@@ -146,6 +146,8 @@ StandLock asks for a permission only when you use the feature that needs it. It 
 | **Calendar** | Optional. Reads your calendar events to automatically defer breaks during meetings. Never modifies your calendar. |
 | **Camera & Microphone** | Not accessed directly. StandLock checks whether another app is using the camera or mic to detect active meetings and defer breaks accordingly. |
 
+The Sandboxed Build is a separate edition that runs inside the macOS App Sandbox. It has its own bundle identifier and update feed, and it asks only for Calendar access. It has no Strict level, because the sandbox rules out blocking input; a schedule stored as Strict runs as Firm there. Build it with `xcodegen generate` and then `xcodebuild -scheme StandLock -configuration Sandboxed`.
+
 You can revoke any permission at any time in **System Settings > Privacy & Security**. When a permission is revoked, features that depend on it degrade instead of breaking: Strict schedules run as Firm until the permission is back, keeping their Strict setting and showing the reason in the schedule list and the menu bar, and calendar integration is skipped. No crashes, no broken state.
 
 ## Building from Source

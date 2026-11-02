@@ -6,25 +6,27 @@ struct PermissionsView: View {
     var body: some View {
         Form {
             Section {
-                PermissionRow(
-                    title: "Input Monitoring",
-                    description: "Enables the escape key combo that ends a Strict break.",
-                    systemImage: "keyboard",
-                    status: checker.inputMonitoringStatus,
-                    settingsURLs: PermissionType.inputMonitoring.settingsURLs,
-                    action: { checker.requestInputMonitoring() },
-                    restartAction: { checker.relaunchApp() }
-                )
+                if checker.capabilities.supportsInputBlocking {
+                    PermissionRow(
+                        title: "Input Monitoring",
+                        description: "Enables the escape key combo that ends a Strict break.",
+                        systemImage: "keyboard",
+                        status: checker.inputMonitoringStatus,
+                        settingsURLs: PermissionType.inputMonitoring.settingsURLs,
+                        action: { checker.requestInputMonitoring() },
+                        restartAction: { checker.relaunchApp() }
+                    )
 
-                PermissionRow(
-                    title: "Accessibility",
-                    description: "Enables Strict mode to fully block keyboard and mouse input.",
-                    systemImage: "hand.raised.circle",
-                    status: checker.accessibilityStatus,
-                    settingsURLs: PermissionType.accessibility.settingsURLs,
-                    action: { checker.requestAccessibility() },
-                    restartAction: { checker.relaunchApp() }
-                )
+                    PermissionRow(
+                        title: "Accessibility",
+                        description: "Enables Strict mode to fully block keyboard and mouse input.",
+                        systemImage: "hand.raised.circle",
+                        status: checker.accessibilityStatus,
+                        settingsURLs: PermissionType.accessibility.settingsURLs,
+                        action: { checker.requestAccessibility() },
+                        restartAction: { checker.relaunchApp() }
+                    )
+                }
 
                 PermissionRow(
                     title: "Calendar Access",
