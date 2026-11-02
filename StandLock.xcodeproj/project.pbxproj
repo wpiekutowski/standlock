@@ -60,6 +60,7 @@
 		ED1A168BD55576065212E8ED /* OverlayWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4462E8D161113596647BD19E /* OverlayWindowController.swift */; };
 		FBB74759FC16BB2E5F728128 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A85E4C082C8E3C5083ABAEB /* OnboardingView.swift */; };
 		FF4C7AAB3CFF56C574A3EAA2 /* BreakPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C3B7E68FDF3C989BA50F367 /* BreakPalette.swift */; };
+		500C5AD70BAFA19843E6A2FF /* AppCapabilities+Current.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D901E23415162A0EF32B1D4 /* AppCapabilities+Current.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -114,6 +115,8 @@
 		EE28EF9957F31C9560EE4439 /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = Localizable.xcstrings; sourceTree = "<group>"; };
 		FE0E2C708B760F809144B756 /* PermissionChecker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionChecker.swift; sourceTree = "<group>"; };
 		FF28ED37577405AD41518961 /* BreakScreenSettingsSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakScreenSettingsSection.swift; sourceTree = "<group>"; };
+		8D901E23415162A0EF32B1D4 /* AppCapabilities+Current.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCapabilities+Current.swift"; sourceTree = "<group>"; };
+		51D7F43C995C3C6672E44991 /* StandLockSandboxed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = StandLockSandboxed.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +190,7 @@
 				A81F2ED91290AD26CB5B672E /* AppCoordinator.swift */,
 				37C6854B70D7BA6C7DDE4D09 /* AppTheme.swift */,
 				35EA7054F16243AE0575478E /* LanguageStore.swift */,
+				8D901E23415162A0EF32B1D4 /* AppCapabilities+Current.swift */,
 				5586791BF5D81FC7CE5AE185 /* MediaController.swift */,
 				4462E8D161113596647BD19E /* OverlayWindowController.swift */,
 				FE0E2C708B760F809144B756 /* PermissionChecker.swift */,
@@ -213,6 +217,7 @@
 				CD5052FB7ADFF1C72A819672 /* InfoPlist.xcstrings */,
 				EE28EF9957F31C9560EE4439 /* Localizable.xcstrings */,
 				540564FDDCA36A0411155BC1 /* StandLock.entitlements */,
+				51D7F43C995C3C6672E44991 /* StandLockSandboxed.entitlements */,
 				B1524D749BB78A875E5FD51F /* StandLockApp.swift */,
 				85FCDB623AA2D87A6776A720 /* AppState */,
 				1061C6E6685F14220CAF3DCC /* Resources */,
@@ -376,6 +381,7 @@
 				726D144CA2B3B5AF4D4503AE /* LevelPill.swift in Sources */,
 				8392C29716F63661BC5BBF34 /* LocalizedRoot.swift in Sources */,
 				D751E70A3ADA8406061C5A90 /* ManuscriptBreakView.swift in Sources */,
+				500C5AD70BAFA19843E6A2FF /* AppCapabilities+Current.swift in Sources */,
 				10EB4FC225CCCB669122BFED /* MediaController.swift in Sources */,
 				2030E658A07F36AC7B1141D5 /* MenuBarIcon.swift in Sources */,
 				1CCAA6FDBBB854DCBC1968EA /* MenuBarView.swift in Sources */,
@@ -421,6 +427,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.yagizdokumaci.standlock;
 				PRODUCT_NAME = StandLock;
 				SDKROOT = macosx;
+				SPARKLE_ENABLE_INSTALLER_LAUNCHER = NO;
+				SPARKLE_FEED_URL = "https://github.com/yagizdo/standlock/releases/latest/download/appcast.xml";
 				SWIFT_STRICT_CONCURRENCY = complete;
 			};
 			name = Release;
@@ -441,6 +449,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.yagizdokumaci.standlock.debug;
 				PRODUCT_NAME = StandLock;
 				SDKROOT = macosx;
+				SPARKLE_ENABLE_INSTALLER_LAUNCHER = NO;
+				SPARKLE_FEED_URL = "https://github.com/yagizdo/standlock/releases/latest/download/appcast.xml";
 				SWIFT_STRICT_CONCURRENCY = complete;
 			};
 			name = Debug;
