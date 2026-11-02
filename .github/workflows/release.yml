@@ -199,6 +199,9 @@ jobs:
             --keychain-profile "ci-notary" --wait
           xcrun stapler staple "$RUNNER_TEMP/export/StandLock.app"
 
+      - name: Install create-dmg
+        run: brew install create-dmg
+
       - name: Create release DMG
         run: scripts/create-release-dmg.sh
 
